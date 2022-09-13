@@ -1,29 +1,31 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
-  import { State, startGameLoop, max, mkAdder, delay, act, abortQueue, sink } from './actions.ts'
+  import { State, startGameLoop, max, mkAdder, delay, act, abortQueue, sink, stateRef } from './actions'
 
-const msg = ref('Hello World!')
 
 const cnt = ref(0);
-const maxValue = ref(10);
-const incBy = ref(1);
+const cntState = stateRef(cnt);
+
+const maxValue = 10;
+const incBy = 1;
 
 const maxCnt = ref(10);
-const maxAdder = mkAdder(() =>maxCnt, '', sink);
+const maxCntState = stateRef(maxCnt);
+const maxAdder = mkAdder(maxCntState, sink);
   
 const maxState = max(maxAdder.get);
 
-const adder = mkAdder(()=>cnt, '', maxState);
+const adder = mkAdder(cntState, maxState);
 
 
 act(adder, 'plus', 1)
 
 function incrementNow() {
-	act(adder, 'plus', incBy.value)  
+	act(adder, 'plus', incBy)  
 }  
 
 function incrementLater() {
-	delay( 1000, () => act(adder, 'plus', incBy.value));
+	delay( 1000, () => act(adder, 'plus', incBy));
 }  
   
 function reset() {
